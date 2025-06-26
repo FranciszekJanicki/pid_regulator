@@ -4,10 +4,8 @@ target_sources(pid_regulator PRIVATE
     pid_regulator.c
 )
 
-target_include_directories(pid_regulator PRIVATE 
-)
-
-target_link_libraries(pid_regulator PRIVATE
+target_include_directories(pid_regulator PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_compile_options(pid_regulator PUBLIC
