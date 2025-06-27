@@ -15,13 +15,14 @@ static inline float32_t pid_regulator_get_dot_term(pid_regulator_t* regulator,
 {
     float32_t dot_error = (error - regulator->state.prev_error) / delta_time;
 
-    // if (regulator->config.dot_time > 0.0F) {
-    //     float32_t alpha = delta_time / (regulator->config.dot_time + delta_time);
-    //     regulator->state.dot_error =
-    //         alpha * dot_error + (1.0F - alpha) * regulator->state.dot_error;
-    // } else
-    regulator->state.dot_error = dot_error;
-    // }
+    if (regulator->config.dot_time > 0.0F) {
+        float32_t alpha = delta_time / (regulator->config.dot_time + delta_time);
+        regulator->state.dot_error =
+            alpha * dot_error + (1.0F - alpha) * regulator->state.dot_error;
+    } else {
+        regulator->state.dot_error = dot_error;
+    }
+
     regulator->state.prev_error = error;
 
     return regulator->config.dot_gain * regulator->state.dot_error;
