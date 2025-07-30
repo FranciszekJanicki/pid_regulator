@@ -1,6 +1,10 @@
 #ifndef PID_REGULATOR_PID_REGULATOR_CONFIG_H
 #define PID_REGULATOR_PID_REGULATOR_CONFIG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef float float32_t;
 
 typedef struct {
@@ -21,5 +25,9 @@ typedef struct {
     float32_t min_control;
     float32_t max_control;
 } pid_regulator_config_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // PID_REGULATOR_PID_REGULATOR_CONFIG_H

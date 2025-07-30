@@ -3,6 +3,10 @@
 
 #include "pid_regulator_config.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     pid_regulator_state_t state;
     pid_regulator_config_t config;
@@ -20,5 +24,9 @@ float32_t pid_regulator_get_control(pid_regulator_t* regulator,
 float32_t pid_regulator_get_sat_control(pid_regulator_t* regulator,
                                         float32_t error,
                                         float32_t delta_time);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // PID_REGULATOR_PID_REGULATOR_H
