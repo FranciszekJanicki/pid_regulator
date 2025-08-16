@@ -58,34 +58,60 @@ static inline float32_t pid_regulator_clamp_control(pid_regulator_t* regulator,
     return control;
 }
 
-void pid_regulator_initialize(pid_regulator_t* regulator,
-                              pid_regulator_config_t const* config)
+pid_regulator_err_t pid_regulator_initialize(
+    pid_regulator_t* regulator,
+    pid_regulator_config_t const* config)
 {
-    assert(regulator && config);
+    if (regulator == NULL || config == NULL) {
+        return PID_REGULATOR_ERR_NULL;
+    }
 
     memset(regulator, 0, sizeof(*regulator));
     memcpy(&regulator->config, config, sizeof(*config));
+
+    return PID_REGULATOR_ERR_OK;
 }
 
-void pid_regulator_deinitialize(pid_regulator_t* regulator)
+pid_regulator_err_t pid_regulator_deinitialize(pid_regulator_t* regulator)
 {
-    assert(regulator);
+    if (regulator == NULL) {
+        return PID_REGULATOR_ERR_NULL;
+    }
 
     memset(regulator, 0, sizeof(*regulator));
+
+    return PID_REGULATOR_ERR_OK;
 }
 
-void pid_regulator_reset(pid_regulator_t* regulator)
+pid_regulator_err_t pid_regulator_reset(pid_regulator_t* regulator)
 {
-    assert(regulator);
+    if (regulator == NULL) {
+        return PID_REGULATOR_ERR_NULL;
+    }
 
     memset(&regulator->state, 0, sizeof(regulator->state));
+
+    return PID_REGULATOR_ERR_OK;
 }
 
-float32_t pid_regulator_get_control(pid_regulator_t* regulator,
-                                    float32_t error,
-                                    float32_t delta_time)
+pid_regulator_err_t pid_regulator_get_control(pid_regulator_t* regulator,
+                                              float32_t error,
+                                              float32_t delta_time,
+                                              float32_t* control)
 {
-    assert(regulator && delta_time > 0.0F);
+    if (regulator == NULL || control == NULL) {
+        return PID_REGULATOR_ERR_NULL;
+    }
+
+    if (delta_time == 0.0F) {
+        return PID_REGULATOR_ERR_ZERO_DIVISION;
+    }
+
+    if (fabsf(error) < regulator->config.dead_error) {
+        *control = 0.0F;
+
+        return PID_REGULATOR_ERR_OK;
+    }
 
     float32_t prop_term = pid_regulator_get_prop_term(regulator, error);
     float32_t int_term =
@@ -93,20 +119,31 @@ float32_t pid_regulator_get_control(pid_regulator_t* regulator,
     float32_t dot_term =
         pid_regulator_get_dot_term(regulator, error, delta_time);
 
-    return prop_term + int_term + dot_term;
+    *control = prop_term + int_term + dot_term;
+
+    return PID_REGULATOR_ERR_OK;
 }
 
-float32_t pid_regulator_get_sat_control(pid_regulator_t* regulator,
-                                        float32_t error,
-                                        float32_t delta_time)
+pid_regulator_err_t pid_regulator_get_sat_control(pid_regulator_t* regulator,
+                                                  float32_t error,
+                                                  float32_t delta_time,
+                                                  float32_t* sat_control)
 {
-    assert(regulator && delta_time > 0.0F);
+    if (regulator == NULL || sat_control == NULL) {
+        return PID_REGULATOR_ERR_NULL;
+    }
 
-    float32_t control = pid_regulator_get_control(regulator, error, delta_time);
-    float32_t sat_control = pid_regulator_clamp_control(regulator, control);
+    float32_t control;
+    pid_regulator_err_t err =
+        pid_regulator_get_control(regulator, error, delta_time, &control);
+    if (err != PID_REGULATOR_ERR_OK) {
+        return err;
+    }
+
+    *sat_control = pid_regulator_clamp_control(regulator, control);
 
     regulator->state.prev_sat_error = regulator->state.sat_error;
-    regulator->state.sat_error = control - sat_control;
+    regulator->state.sat_error = control - *sat_control;
 
-    return sat_control;
+    return PID_REGULATOR_ERR_OK;
 }

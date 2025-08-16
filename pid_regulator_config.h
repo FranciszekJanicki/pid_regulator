@@ -7,6 +7,13 @@ extern "C" {
 
 typedef float float32_t;
 
+typedef enum {
+    PID_REGULATOR_ERR_OK = 0,
+    PID_REGULATOR_ERR_FAIL,
+    PID_REGULATOR_ERR_NULL,
+    PID_REGULATOR_ERR_ZERO_DIVISION,
+} pid_regulator_err_t;
+
 typedef struct {
     float32_t prev_error;
     float32_t int_error;
@@ -24,6 +31,7 @@ typedef struct {
     float32_t sat_gain;
     float32_t min_control;
     float32_t max_control;
+    float32_t dead_error;
 } pid_regulator_config_t;
 
 #ifdef __cplusplus
