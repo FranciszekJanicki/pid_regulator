@@ -25,8 +25,6 @@ static inline float32_t pid_regulator_get_dot_term(pid_regulator_t* regulator,
         regulator->state.dot_error = dot_error;
     }
 
-    regulator->state.prev_error = error;
-
     return regulator->config.dot_gain * regulator->state.dot_error;
 }
 
@@ -120,6 +118,7 @@ pid_regulator_err_t pid_regulator_get_control(pid_regulator_t* regulator,
         pid_regulator_get_dot_term(regulator, error, delta_time);
 
     *control = prop_term + int_term + dot_term;
+    regulator->state.prev_error = error;
 
     return PID_REGULATOR_ERR_OK;
 }
@@ -141,7 +140,7 @@ pid_regulator_err_t pid_regulator_get_sat_control(pid_regulator_t* regulator,
     }
 
     *sat_control = pid_regulator_clamp_control(regulator, control);
-    
+
     regulator->state.prev_sat_error = regulator->state.sat_error;
     regulator->state.sat_error = control - *sat_control;
 
