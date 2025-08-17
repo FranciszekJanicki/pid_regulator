@@ -11,7 +11,6 @@ typedef enum {
     PID_REGULATOR_ERR_OK = 0,
     PID_REGULATOR_ERR_FAIL,
     PID_REGULATOR_ERR_NULL,
-    PID_REGULATOR_ERR_ZERO_DIVISION,
 } pid_regulator_err_t;
 
 typedef struct {

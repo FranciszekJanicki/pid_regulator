@@ -103,8 +103,8 @@ pid_regulator_err_t pid_regulator_get_control(pid_regulator_t* regulator,
         return PID_REGULATOR_ERR_NULL;
     }
 
-    if (delta_time == 0.0F) {
-        return PID_REGULATOR_ERR_ZERO_DIVISION;
+    if (delta_time <= 0.0F) {
+        return PID_REGULATOR_ERR_FAIL;
     }
 
     if (fabsf(error) < regulator->config.dead_error) {
@@ -141,7 +141,7 @@ pid_regulator_err_t pid_regulator_get_sat_control(pid_regulator_t* regulator,
     }
 
     *sat_control = pid_regulator_clamp_control(regulator, control);
-
+    
     regulator->state.prev_sat_error = regulator->state.sat_error;
     regulator->state.sat_error = control - *sat_control;
 
